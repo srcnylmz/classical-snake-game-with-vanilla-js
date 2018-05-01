@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Classical Snake Game with Vanilla JS</title>
+	<style type="text/css">
+		* {
+			margin: 0px;
+			padding: 0px;
+		}
+
+		body {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+			background: #111;
+		}
+
+		.game-canvas {
+			align-self: center;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="gc" class="game-canvas"></canvas>
+	<script type="text/javascript">
+		window.onload = function() {
+			let gameCanvas = document.getElementById("gc");
+			gameCanvas.width = window.innerHeight;
+			gameCanvas.height = window.innerHeight;
+			let gameCanvasContext = gameCanvas.getContext("2d");
+
+			document.addEventListener("keydown", keyPushed);
+
+			// spped of the game (call game function 12 times per second)
+			setInterval(game, 1000/12);
+
+			// velocity
+			let xVelocity = 0;
+			let yVelocity = 0;
+
+			// player position at the beginning
+			let xPlayer = 10;
+			let yPlayer = 10;
+
+			// grid size
+			let gridSize = 15;
+
+			// tile counter
+			let tileCounter = Math.round(gameCanvas.height / gridSize);
+
+			// apple coordinates
+			let xApple = 15;
+			let yApple = 15;
+
+			// to keep track of the previous positions
+			let trail = [];
+
+			// to keep the size of the tail of the snake
+			let tail = 2;
+
+			function game() {
+				xPlayer += xVelocity;
+				yPlayer += yVelocity;
+
+				if (xPlayer < 0) {
+					xPlayer = tileCounter - 1;
+				}
+
+				if (xPlayer > tileCounter -1) {
+					xPlayer = 0;
+				}
+
+				if (yPlayer < 0) {
+					yPlayer = tileCounter - 1;
+				}
+
+				if (yPlayer > tileCounter -1) {
+					yPlayer = 0;
+				}
+
+				gameCanvasContext.fillStyle = "black";
+				gameCanvasContext.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+				// coloring the snake
+				gameCanvasContext.fillStyle = "lime";
+				for (let i = 0; i < trail.length; i++) {
+					gameCanvasContext.fillRect(trail[i].x * gridSize, trail[i].y * gridSize, gridSize - 2, gridSize - 2);
+
+					// if the snake hits his tail
+					if (trail[i].x == xPlayer && trail[i].y == yPlayer) {
+						tail = 2;
+					}
+				}
+
+				trail.push({ x : xPlayer, y : yPlayer});
+
+				while (trail.length > tail) {
+					trail.shift();
+				}
+
+				// if the snake eats an apple enlarge his tail =)
+				if (xApple == xPlayer && yApple == yPlayer) {
+					tail++;
+
+					// create new apple
+					xApple = Math.floor(Math.random() * tileCounter);
+					yApple = Math.floor(Math.random() * tileCounter);
+				}
+
+				gameCanvasContext.fillStyle = "red";
+				gameCanvasContext.fillRect(xApple * gridSize, yApple * gridSize, gridSize - 2, gridSize - 2);
+
+			}
+
+			// keeping track of the arrow keys on keyboard
+			function keyPushed(e) {
+				switch (e.keyCode) {
+					case 37:
+						xVelocity = -1;
+						yVelocity = 0;
+						break;
+
+					case 38:
+						xVelocity = 0;
+						yVelocity = -1;
+						break;
+
+					case 39:
+						xVelocity = 1;
+						yVelocity = 0;
+						break;
+
+					case 40:
+						xVelocity = 0;
+						yVelocity = 1;
+						break;
+				}
+			}
+		}
+	</script>
+</body>
+</html>
